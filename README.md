@@ -21,3 +21,8 @@ Supports: Debug, MinSizeRel, RelWithDebugInfo and Release build configurations.
 
 # rfim_tests
 Unit tests to verify correctness of rfim. Uses the googletest framework: https://github.com/google/googletest
+
+**Important:** 
+Tests expect there to be a folder with file at `rfim_assignment/data/data.bin`.
+
+The file should be the test data supplied for the assignment. Without this the tests will fail.
