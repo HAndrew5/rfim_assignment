@@ -4,7 +4,7 @@
 #include<string>
 #include<stdexcept>
 
-namespace rfim {
+namespace {
 	std::string GetAbsoluteFilepathFromRelative(std::string relative_filepath, std::string reference_filepath)
 	{
 		bool reference_is_folderpath = reference_filepath.rfind(".", reference_filepath.length()) == std::string::npos;
