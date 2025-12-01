@@ -4,4 +4,7 @@ TimeFrequencyMetadata.h
 DataReader.h DataReader.cpp
 DataWriter.h DataWriter.cpp
 GetAbsoluteFilepathFromRelative.h
+RfiStrategy.h
+RudimentaryRfi.h
+FileProcessor.h
 )

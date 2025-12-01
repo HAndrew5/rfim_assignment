@@ -3,4 +3,6 @@ TimeFrequencyTests.cpp
 TimeFrequencyMetadataTests.cpp
 DataReaderTests.cpp
 DataWriterTests.cpp
+RudimentaryRfiTests.cpp
+FileProcessorTests.cpp
 )
