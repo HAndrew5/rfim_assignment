@@ -18,7 +18,16 @@ namespace rfim {
 	template<typename DataType>
 	class RudimentaryRfi : public RfiStrategy<RudimentaryRfi<DataType>>
 	{
+		static_assert(
+			std::is_same<DataType, float>::value ||
+			std::is_same<DataType, uint8_t>::value ||
+			std::is_same<DataType, uint16_t>::value,
+			"RudimentaryRfi DataType must be float, uint8_t, or uint16_t"
+			);
+
 	public:
+		using StrategyDataType = DataType;
+
 		RudimentaryRfi(DataType threshold = RudimentaryRfi<DataType>::default_threshold()) :
 			_threshold(threshold)
 		{}
@@ -43,6 +52,7 @@ namespace rfim {
 				return static_cast<DataType>(4.5);
 			else if (std::is_integral<DataType>::value)
 				return static_cast<DataType>(5);
+			return DataType();
 		}
 
 		void calculate_median(TimeFrequency<DataType> chunk, std::vector<DataType>& median)

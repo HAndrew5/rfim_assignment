@@ -5,6 +5,10 @@
 
 namespace rfim {
 
+	// Define: 
+	// using DataType_t = DataType;
+	// in every concrete class
+
 	template <typename Derived>
 	class RfiStrategy {
 	public:

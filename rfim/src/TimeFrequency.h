@@ -72,7 +72,7 @@ namespace rfim {
 			if (!_metadata.is_equal(test_data._metadata))
 				return false;
 
-			for (size_t i = 0; i < get_total_samples(); ++i)
+			for (std::size_t i = 0; i < get_total_samples(); ++i)
 			{
 				if (_data[i] != test_data._data[i])
 					return false;
@@ -91,7 +91,7 @@ namespace rfim {
 				return false;
 
 			constexpr float tolerence = 1e-6f;
-			for (size_t i = 0; i < get_total_samples(); ++i)
+			for (std::size_t i = 0; i < get_total_samples(); ++i)
 			{
 				if (std::fabs(_data[i] - test_data._data[i]) > tolerence)
 					return false;

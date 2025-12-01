@@ -3,21 +3,22 @@
 #include"../../rfim/src/DataReader.h"
 #include"../../rfim/src/GetAbsoluteFilepathFromRelative.h"
 #include"../../rfim/src/RudimentaryRfi.h"
+#include"../../rfim/src/FileProcessor.h"
 
 
-TEST(RudimentaryRfiTest, BasicTest)
+TEST(FileProcessor, BasicTest)
 {
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
 		"../../data/test_data.bin", __FILE__);
+	std::string destination_file_path = GetAbsoluteFilepathFromRelative(
+		"../../data/processed_test_data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
 
 	rfim::TimeFrequencyMetadata metadata;
-	metadata._frequency_channels = 10;
-	rfim::TimeFrequency<float> data_buffer(metadata);
-	test_reader.read_time_frequency_data_from_file(data_buffer);
-	rfim::TimeFrequency<float> original_buffer(data_buffer);
-
+	metadata._frequency_channels = 5;
 	rfim::RudimentaryRfi<float> rfi_module;
-	EXPECT_NO_THROW(rfi_module.process(data_buffer));
+	rfim::FileProcessor<rfim::RudimentaryRfi<float>> processor(rfi_module, metadata);
+
+	EXPECT_EQ(processor.process_file(source_file_path, destination_file_path), 2);
 }
