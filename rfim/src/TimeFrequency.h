@@ -6,6 +6,7 @@
 #include<cmath>
 #include<cassert>
 #include<stdexcept>
+#include<algorithm>
 
 #include"TimeFrequencyMetadata.h"
 
@@ -30,7 +31,7 @@ namespace rfim {
 
 		TimeFrequency(const TimeFrequency& input_data) :
 			_metadata(input_data._metadata),
-			_data(new DataType[_metadata._number_of_spectra * _metadata._frequency_channels])
+			_data(new DataType[_metadata._number_of_spectra * _metadata._frequency_channels]())
 		{
 			std::copy(input_data._data, input_data._data + input_data.get_total_samples(), _data);
 		}
@@ -60,6 +61,65 @@ namespace rfim {
 			}
 
 			std::copy(_data, _data + get_total_samples(), destination_buffer);
+		}
+
+		void write_data_to_time_frequency(TimeFrequency<DataType>& destination_buffer) const
+		{
+			if (destination_buffer.get_total_samples() != get_total_samples())
+			{
+				std::string error_string = "Tried writing from a TimeFrequency buffer of length " +
+					std::to_string(get_total_samples()) + " to a TimeFrequency of length " + 
+					std::to_string(destination_buffer.get_total_samples()) + 
+						", these values must match in rfim::TimeFrequency.write_data_to_time_frequency";
+				throw std::out_of_range(error_string);
+			}
+
+			std::copy(_data, _data + get_total_samples(), destination_buffer._data);
+		}
+
+		void set_channel_to_value(ChannelCount channel, DataType value)
+		{
+			DataType* start_pointer = get_raw_channel_start(channel);
+			std::fill(start_pointer, start_pointer+get_number_of_spectra(), value);
+		}
+
+		DataType destructive_calculate_channel_median(ChannelCount channel)
+		{
+			DataType* start_pointer = get_raw_channel_start(channel);
+			DataType* median_pointer = get_raw_channel_start(channel) + get_number_of_spectra() / 2;
+			DataType* end_pointer = get_raw_channel_start(channel) + get_number_of_spectra();
+			std::nth_element(start_pointer, median_pointer, end_pointer);
+			return *median_pointer;
+		}
+
+		template<typename T = DataType>
+		typename std::enable_if<std::is_integral<T>::value, float>::type
+		calculate_channel_standard_deviation(ChannelCount channel_index, float channel_average) const
+		{
+			// Calculate using floating point to avoid wrap around from unsigned types
+			// Accept channel_average as float incase mean etc. is used. Return as float
+			float square_sum = 0.0f;
+			for (std::size_t i_sample = 0; i_sample < get_number_of_spectra(); ++i_sample)
+			{
+				float d = static_cast<float>(get_sample(channel_index, i_sample)) - channel_average;
+				square_sum += d * d;
+			}
+
+			return std::sqrt(square_sum / static_cast<float>(get_number_of_spectra()));
+		}
+
+		template<typename T = DataType>
+		typename std::enable_if<std::is_floating_point<T>::value, float>::type
+		calculate_channel_standard_deviation(ChannelCount channel_index, DataType channel_average) const
+		{
+			DataType square_sum = 0.0;
+			for (std::size_t i_sample = 0; i_sample < get_number_of_spectra(); ++i_sample)
+			{
+				DataType d = get_sample(channel_index, i_sample) - channel_average;
+				square_sum += d * d;
+			}
+
+			return std::sqrt(square_sum / static_cast<float>(get_number_of_spectra()));
 		}
 
 		template<typename T = DataType>
@@ -120,6 +180,13 @@ namespace rfim {
 			assert(channel >= 0);
 			assert(channel < _metadata._frequency_channels);
 			return &_data[channel * _metadata._number_of_spectra];
+		}
+
+		DataType* get_raw_channel_end(ChannelCount channel = 0)
+		{
+			assert(channel >= 0);
+			assert(channel < _metadata._frequency_channels);
+			return &_data[channel * _metadata._number_of_spectra + (_metadata._number_of_spectra - 1)];
 		}
 
 		ChannelCount get_number_of_channels() const { return _metadata._frequency_channels; }

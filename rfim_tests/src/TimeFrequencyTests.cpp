@@ -129,6 +129,63 @@ TYPED_TEST(TimeFrequencyTest, WriteToRawTest)
 	EXPECT_NE(rawBuffer[0], new_time_frequency.get_sample(0, 0));
 }
 
+TYPED_TEST(TimeFrequencyTest, WriteToTimeFrequencyTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._number_of_spectra = 10;
+	metadata._frequency_channels = 20;
+	TF new_time_frequency(metadata);
+	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+		*(new_time_frequency.get_raw() + i) = static_cast<TypeParam>(i);
+
+	// test equality after write
+	TF destination_buffer(metadata);
+	EXPECT_FALSE(new_time_frequency.is_equal(destination_buffer));
+	new_time_frequency.write_data_to_time_frequency(destination_buffer);
+	EXPECT_TRUE(new_time_frequency.is_equal(destination_buffer));
+
+	// test a deep copy has been made
+	destination_buffer.get_sample(0,0) = 100;
+	EXPECT_FALSE(new_time_frequency.is_equal(destination_buffer));
+
+	// Test exception thrown on different length destination
+	metadata._number_of_spectra = 11;
+	TF different_spectra_buffer(metadata);
+	EXPECT_THROW(new_time_frequency.write_data_to_time_frequency(different_spectra_buffer);, std::out_of_range);
+}
+
+TYPED_TEST(TimeFrequencyTest, SetChannelToValueTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._number_of_spectra = 10;
+	metadata._frequency_channels = 20;
+	TF time_frequency(metadata);
+	TypeParam value = 5;
+	TypeParam zero_value = 0;
+	
+
+	//test only channel 0 has been set
+	time_frequency.set_channel_to_value(0, value);
+	for (int i = 0; i < time_frequency.get_number_of_spectra(); ++i)
+		EXPECT_EQ(time_frequency.get_sample(0,i), value);
+	for (int i = time_frequency.get_number_of_spectra(); i < time_frequency.get_total_samples(); ++i)
+		EXPECT_EQ(time_frequency.get_raw()[i], zero_value);
+
+	// test setting last channel
+	TypeParam second_value = 10;
+	time_frequency.set_channel_to_value(19, second_value);
+	for (int i = 0; i < time_frequency.get_number_of_spectra(); ++i)
+		EXPECT_EQ(time_frequency.get_sample(0, i), value);
+	for (int i = time_frequency.get_number_of_spectra(); i < time_frequency.get_total_samples() - time_frequency.get_number_of_spectra(); ++i)
+		EXPECT_EQ(time_frequency.get_raw()[i], zero_value);
+	for (int i = 0; i < time_frequency.get_number_of_spectra(); ++i)
+		EXPECT_EQ(*(time_frequency.get_raw_channel_start(19)+i), second_value);
+}
+
 TYPED_TEST(TimeFrequencyTest, GetSampleTest)
 {
 	using TF = typename TestFixture::TF;
@@ -211,6 +268,31 @@ TYPED_TEST(TimeFrequencyTest, GetRawChannelStartTest)
 	EXPECT_EQ(*new_time_frequency.get_raw_channel_start(metadata._frequency_channels-1), new_value);
 }
 
+TYPED_TEST(TimeFrequencyTest, GetRawChannelEndTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	TF new_time_frequency(metadata);
+
+	// check get default value st end
+	TypeParam expected_value = static_cast<TypeParam>(0);
+	EXPECT_EQ(*new_time_frequency.get_raw_channel_end(0), expected_value);
+
+	// check setting and getting a new value for channel 1
+	TypeParam new_value = static_cast<TypeParam>(10);
+	*new_time_frequency.get_raw_channel_end(1) = new_value;
+	std::size_t channel_one_end_index = metadata._number_of_spectra + metadata._number_of_spectra - 1;
+	EXPECT_EQ(*(new_time_frequency.get_raw() + channel_one_end_index), new_value);
+	EXPECT_EQ(*new_time_frequency.get_raw_channel_end(1), new_value);
+
+	// check setting and getting a new value at last channel
+	*new_time_frequency.get_raw_channel_end(metadata._frequency_channels - 1) = new_value;
+	std::size_t channel_end_index = (metadata._frequency_channels * metadata._number_of_spectra) - 1;
+	EXPECT_EQ(*(new_time_frequency.get_raw() + channel_end_index), new_value);
+	EXPECT_EQ(*new_time_frequency.get_raw_channel_end(metadata._frequency_channels - 1), new_value);
+}
+
 TYPED_TEST(TimeFrequencyTest, GetNumberOfChannelsTest)
 {
 	using TF = typename TestFixture::TF;
@@ -274,4 +356,151 @@ TYPED_TEST(TimeFrequencyTest, GetMetadataTest)
 	const TF new_time_frequency(metadata);
 	// check metadata is equal
 	EXPECT_TRUE(metadata.is_equal(new_time_frequency.get_metadata()));
+}
+
+TYPED_TEST(TimeFrequencyTest, BasicDestructiveCalculateChannelMedianTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 1;
+	TF time_frequency(metadata);
+
+	// test trivial case
+	TypeParam expected_median = 5;
+	time_frequency.get_sample(0, 0) = expected_median;
+	EXPECT_EQ(time_frequency.destructive_calculate_channel_median(0), expected_median);
+}
+
+TYPED_TEST(TimeFrequencyTest, BasicDestructiveCalculateChannelMedianCorrputionTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 3;
+	metadata._number_of_spectra = 7;
+	TF time_frequency(metadata);
+	TypeParam test_values[21] = { 1, 2, 50, 2, 5, 6, 4,  1, 2, 50, 2, 5, 6, 4,  1, 2, 50, 2, 5, 6, 4};
+	TypeParam channel_values[7] = { 1, 2, 50, 2, 5, 6, 4 };
+	time_frequency.read_data_from_raw(test_values);
+
+	// test only selected channel is corrupted
+	TypeParam expected_median = 4;
+	EXPECT_EQ(time_frequency.destructive_calculate_channel_median(1), expected_median);
+	for (std::size_t i = 0; i < 7; ++i)
+	{
+		EXPECT_EQ(time_frequency.get_sample(0,i), channel_values[i]);
+		EXPECT_EQ(time_frequency.get_sample(2, i), channel_values[i]);
+	}
+}
+
+TYPED_TEST(TimeFrequencyTest, OddDataDestructiveCalculateChannelMedianTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 7;
+	TF time_frequency(metadata);
+
+	// test finding median of odd length data
+	TypeParam test_values[7] = {1, 2, 50, 2, 5, 6, 4};
+	time_frequency.read_data_from_raw(test_values);
+	TypeParam expected_median = 4;
+	EXPECT_EQ(time_frequency.destructive_calculate_channel_median(0), expected_median);
+}
+
+TYPED_TEST(TimeFrequencyTest, EvenDataDestructiveCalculateChannelMedianTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 8;
+	TF time_frequency(metadata);
+
+	// test finding median of odd length data
+	TypeParam test_values[8] = { 1, 2, 50, 2, 5, 6, 4, 7 };
+	time_frequency.read_data_from_raw(test_values);
+	TypeParam expected_median = 5;
+	EXPECT_EQ(time_frequency.destructive_calculate_channel_median(0), expected_median);
+}
+
+TYPED_TEST(TimeFrequencyTest, TrivialCalculateChannelStandardDeviationTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 7;
+	TF time_frequency(metadata);
+
+	// test finding median of odd length data
+	TypeParam test_values[7] = { 11, 11, 11, 11, 11, 11, 11 };
+	time_frequency.read_data_from_raw(test_values);
+	TypeParam median = time_frequency.destructive_calculate_channel_median(0);
+
+	// test trivial STD
+	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), 0);
+}
+
+TYPED_TEST(TimeFrequencyTest, ExpectedCalculateChannelStandardDeviationTest)
+{
+	using TF = typename TestFixture::TF;
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 5;
+	TF time_frequency(metadata);
+	
+
+	// test finding median of odd length data
+	TypeParam test_values[5] = { 1, 3, 5, 7, 9 };
+	time_frequency.read_data_from_raw(test_values);
+	TF median_buffer(time_frequency);
+	TypeParam median = median_buffer.destructive_calculate_channel_median(0);
+	EXPECT_EQ(median, 5);
+	float expected_std = std::sqrt(8);
+
+	// test known STD
+	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), expected_std);
+}
+
+TEST(TimeFrequencyUint8Test, CalculateChannelStandardDeviationOverflowTest)
+{
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 5;
+	rfim::TimeFrequency<uint8_t> time_frequency(metadata);
+
+	// test whether correct value is returned for values near to uint8 max
+	uint8_t test_values[5] = { 100, 30, 50, 70, 200 };
+	time_frequency.read_data_from_raw(test_values);
+	rfim::TimeFrequency<uint8_t> median_buffer(time_frequency);
+	uint8_t median = median_buffer.destructive_calculate_channel_median(0);
+	EXPECT_EQ(median, 70);
+	float expected_std = std::sqrt(3960);
+
+	// test known STD
+	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), expected_std);
+}
+
+TEST(TimeFrequencyUint16Test, CalculateChannelStandardDeviationOverflowTest)
+{
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 5;
+	rfim::TimeFrequency<uint16_t> time_frequency(metadata);
+
+	// test whether correct value is returned for values near to uint16 max
+	uint16_t test_values[5] = { 65500, 50000, 10000, 40000, 5000 };
+	time_frequency.read_data_from_raw(test_values);
+	rfim::TimeFrequency<uint16_t> median_buffer(time_frequency);
+	uint16_t median = median_buffer.destructive_calculate_channel_median(0);
+	EXPECT_EQ(median, 40000);
+	float expected_std = std::sqrt(575050000);
+
+	// test known STD
+	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), expected_std);
 }

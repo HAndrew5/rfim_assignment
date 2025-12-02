@@ -14,6 +14,9 @@ namespace rfim {
 	class and the RfiStrategy CRPT.
 	This serves as a baseline, but is not intended as an example of "clean" or
 	efficient code.
+	NOTE: This has NOT been changed to work with uint types, it is only valid for floats.
+	Please look to MedianStandardDeviationRfi for a similar strategy that is fully functional
+	and more optimised.
 	*/
 	template<typename DataType>
 	class RudimentaryRfi : public RfiStrategy<RudimentaryRfi<DataType>>
@@ -32,7 +35,7 @@ namespace rfim {
 			_threshold(threshold)
 		{}
 
-		void processImpl(TimeFrequency<DataType>& data_buffer)
+		std::size_t processImpl(TimeFrequency<DataType>& data_buffer)
 		{
 			std::cout << "[RudimentaryRfi] Processing...\n";
 			std::vector<DataType> median(data_buffer.get_number_of_channels());
@@ -40,7 +43,8 @@ namespace rfim {
 
 			calculate_median(data_buffer, median);
 			calculate_std(data_buffer, median, std_dev);
-			clean_data(data_buffer, median, std_dev);
+			std::size_t n_cleaned_channels = clean_data(data_buffer, median, std_dev);
+			return n_cleaned_channels;
 		}
 
 	private:
@@ -107,9 +111,9 @@ namespace rfim {
 			}
 		}
 
-		void clean_data(TimeFrequency<DataType>& chunk, std::vector<DataType>& median, std::vector<DataType>& std_dev)
+		std::size_t clean_data(TimeFrequency<DataType>& chunk, std::vector<DataType>& median, std::vector<DataType>& std_dev)
 		{
-			unsigned number_of_channels_flagged = 0;
+			std::size_t number_of_channels_flagged = 0;
 			for (unsigned channel = 0; channel < chunk.get_number_of_channels(); ++channel)
 			{
 				int flag = 0;
@@ -128,6 +132,7 @@ namespace rfim {
 
 			}
 			std::cout << "channel flagged: " << number_of_channels_flagged << "\n";
+			return number_of_channels_flagged;
 		}
 	};
 

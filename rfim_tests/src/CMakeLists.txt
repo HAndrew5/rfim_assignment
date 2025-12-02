@@ -4,5 +4,6 @@ TimeFrequencyMetadataTests.cpp
 DataReaderTests.cpp
 DataWriterTests.cpp
 RudimentaryRfiTests.cpp
+MedianStandardDeviationRfiTests.cpp
 FileProcessorTests.cpp
 )

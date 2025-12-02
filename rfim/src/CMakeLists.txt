@@ -6,5 +6,7 @@ DataWriter.h DataWriter.cpp
 GetAbsoluteFilepathFromRelative.h
 RfiStrategy.h
 RudimentaryRfi.h
+MedianStandardDeviationRfi.h
 FileProcessor.h
+FileProcessorInfo.h
 )
