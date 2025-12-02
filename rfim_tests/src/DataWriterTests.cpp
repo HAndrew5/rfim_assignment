@@ -20,7 +20,7 @@ TEST(DataWriterTest, DefaultWriteTest)
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
 		"../../data/data.bin", __FILE__);
 	std::string out_file_path = GetAbsoluteFilepathFromRelative(
-		"../../data/generated_test_data.bin", __FILE__);
+		"../../data/test_writer_data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
 	rfim::DataWriter test_writer(out_file_path);

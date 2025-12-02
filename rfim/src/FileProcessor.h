@@ -1,6 +1,8 @@
 #ifndef INCLUDE_RFIM_FILE_PROCESSOR
 #define INCLUDE_RFIM_FILE_PROCESSOR
 
+#include<chrono>
+
 #include"FileProcessorInfo.h"
 #include"TimeFrequency.h"
 #include"../../rfim/src/DataReader.h"
@@ -27,15 +29,22 @@ namespace rfim {
 			DataWriter writer(destination_filepath);
 			std::size_t number_of_whole_chunks = reader.get_file_length<DataType>() / data_buffer.get_total_samples();
 			std::size_t number_of_cleaned_channels = 0;
+			double total_time = 0.0;
 
 			for (std::size_t i = 0; i < number_of_whole_chunks; ++i)
 			{
 				reader.read_time_frequency_data_from_file(data_buffer);
+
+				auto start_time = std::chrono::steady_clock::now();
 				number_of_cleaned_channels += _rfi_module.process(data_buffer);
+				auto end_time = std::chrono::steady_clock::now();
+				
+				std::chrono::duration<double, std::milli> elapsed = end_time - start_time;
+				total_time += elapsed.count();
 				writer.write_time_frequency_data_to_file(data_buffer);
 			}
 
-			return FileProcessorInfo(number_of_cleaned_channels, number_of_whole_chunks);
+			return FileProcessorInfo(number_of_cleaned_channels, number_of_whole_chunks, total_time);
 		}
 
 	private:

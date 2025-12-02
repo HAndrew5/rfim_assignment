@@ -73,61 +73,102 @@ TEST(DataReaderTest, FileEndTest)
 TEST(DataReaderTest, FileLengthBytesTest)
 {
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
-		"../../data/test_data.bin", __FILE__);
+		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	EXPECT_EQ(test_reader.get_file_length_bytes(), 400000);
+	EXPECT_EQ(test_reader.get_file_length_bytes(), 327680000);
 }
 
 TEST(DataReaderTest, FileLengthTest)
 {
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
-		"../../data/test_data.bin", __FILE__);
+		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	EXPECT_EQ(test_reader.get_file_length<float>(), 100000);
-	EXPECT_EQ(test_reader.get_file_length<uint8_t>(), 400000);
-	EXPECT_EQ(test_reader.get_file_length<uint16_t>(), 200000);
+	EXPECT_EQ(test_reader.get_file_length<float>(), 81920000);
+	EXPECT_EQ(test_reader.get_file_length<uint8_t>(), 327680000);
+	EXPECT_EQ(test_reader.get_file_length<uint16_t>(), 163840000);
 }
 
 TEST(DataReaderTest, FileRemainingLengthBytesTest)
 {
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
-		"../../data/test_data.bin", __FILE__);
+		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), 400000);
+	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), 327680000);
 
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 5;
 	rfim::TimeFrequency<float> data_buffer(metadata);
 	test_reader.read_time_frequency_data_from_file(data_buffer);
-	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), 200000);
+	std::size_t expected_bytes = 327680000 - (data_buffer.get_total_samples()*sizeof(float));
+	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), expected_bytes);
 
+	expected_bytes = 327680000 - (2*data_buffer.get_total_samples() * sizeof(float));
 	test_reader.read_time_frequency_data_from_file(data_buffer);
-	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), 0);
+	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), expected_bytes);
 }
 
-TEST(DataReaderTest, FileRemainingLengthTest)
+TEST(DataReaderTest, FloatFileRemainingLengthTest)
 {
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
-		"../../data/test_data.bin", __FILE__);
+		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), 100000);
-	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), 400000);
-	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), 200000);
+	std::size_t expected_float = 81920000;
+	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), expected_float);
 
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 5;
 	rfim::TimeFrequency<float> data_buffer(metadata);
 	test_reader.read_time_frequency_data_from_file(data_buffer);
-	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), 50000);
-	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), 200000);
-	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), 100000);
+	expected_float -= data_buffer.get_total_samples();
+	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), expected_float);
 
 	test_reader.read_time_frequency_data_from_file(data_buffer);
-	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), 0);
-	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), 0);
-	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), 0);
+	expected_float -= data_buffer.get_total_samples();
+	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), expected_float);
+}
+
+TEST(DataReaderTest, Uint8FileRemainingLengthTest)
+{
+	std::string source_file_path = GetAbsoluteFilepathFromRelative(
+		"../../data/data.bin", __FILE__);
+
+	rfim::DataReader test_reader(source_file_path);
+	std::size_t expected_uint8 = 327680000;
+	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), expected_uint8);
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 5;
+	rfim::TimeFrequency<uint8_t> data_buffer(metadata);
+	test_reader.read_time_frequency_data_from_file(data_buffer);
+	expected_uint8 -= data_buffer.get_total_samples();
+	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), expected_uint8);
+
+	test_reader.read_time_frequency_data_from_file(data_buffer);
+	expected_uint8 -= data_buffer.get_total_samples();
+	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), expected_uint8);
+}
+
+TEST(DataReaderTest, Uint16FileRemainingLengthTest)
+{
+	std::string source_file_path = GetAbsoluteFilepathFromRelative(
+		"../../data/data.bin", __FILE__);
+
+	rfim::DataReader test_reader(source_file_path);
+	std::size_t expected_uint16 = 163840000;
+	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), expected_uint16);
+
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 5;
+	rfim::TimeFrequency<uint16_t> data_buffer(metadata);
+	test_reader.read_time_frequency_data_from_file(data_buffer);
+	expected_uint16 -= data_buffer.get_total_samples();
+	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), expected_uint16);
+
+	test_reader.read_time_frequency_data_from_file(data_buffer);
+	expected_uint16 -= data_buffer.get_total_samples();
+	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), expected_uint16);
 }
