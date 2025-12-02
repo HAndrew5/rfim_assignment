@@ -8,4 +8,5 @@ RfiStrategy.h
 RudimentaryRfi.h
 MedianStandardDeviationRfi.h
 FileProcessor.h
+FileProcessorInfo.h
 )

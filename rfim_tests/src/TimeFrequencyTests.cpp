@@ -466,3 +466,41 @@ TYPED_TEST(TimeFrequencyTest, ExpectedCalculateChannelStandardDeviationTest)
 	// test known STD
 	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), expected_std);
 }
+
+TEST(TimeFrequencyUint8Test, CalculateChannelStandardDeviationOverflowTest)
+{
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 5;
+	rfim::TimeFrequency<uint8_t> time_frequency(metadata);
+
+	// test whether correct value is returned for values near to uint8 max
+	uint8_t test_values[5] = { 100, 30, 50, 70, 200 };
+	time_frequency.read_data_from_raw(test_values);
+	rfim::TimeFrequency<uint8_t> median_buffer(time_frequency);
+	uint8_t median = median_buffer.destructive_calculate_channel_median(0);
+	EXPECT_EQ(median, 70);
+	float expected_std = std::sqrt(3960);
+
+	// test known STD
+	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), expected_std);
+}
+
+TEST(TimeFrequencyUint16Test, CalculateChannelStandardDeviationOverflowTest)
+{
+	rfim::TimeFrequencyMetadata metadata;
+	metadata._frequency_channels = 1;
+	metadata._number_of_spectra = 5;
+	rfim::TimeFrequency<uint16_t> time_frequency(metadata);
+
+	// test whether correct value is returned for values near to uint16 max
+	uint16_t test_values[5] = { 65500, 50000, 10000, 40000, 5000 };
+	time_frequency.read_data_from_raw(test_values);
+	rfim::TimeFrequency<uint16_t> median_buffer(time_frequency);
+	uint16_t median = median_buffer.destructive_calculate_channel_median(0);
+	EXPECT_EQ(median, 40000);
+	float expected_std = std::sqrt(575050000);
+
+	// test known STD
+	EXPECT_EQ(time_frequency.calculate_channel_standard_deviation(0, median), expected_std);
+}

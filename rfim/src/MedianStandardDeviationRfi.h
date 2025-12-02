@@ -15,7 +15,6 @@ namespace rfim {
 	channel containing a sample greater than some threshold number of standard deviations above the median.
 	It has only been re-written to improve performance.
 	No parallelism has been used.
-	The median is computed using the standard library nth_element.
 	*/
 	template<typename DataType>
 	class MedianStandardDeviationRfi : public RfiStrategy<MedianStandardDeviationRfi<DataType>>
@@ -64,12 +63,14 @@ namespace rfim {
 			}
 			return false;
 		}
-		
+
+		DataType get_threshold() const
+		{
+			return _threshold;
+		}
+
 
 	private:
-		DataType _threshold;
-		TimeFrequency<DataType> _temp_buffer;
-
 		static DataType default_threshold()
 		{
 			if (std::is_floating_point<DataType>::value)
@@ -78,6 +79,13 @@ namespace rfim {
 				return static_cast<DataType>(5);
 			return DataType();
 		}
+
+
+		DataType _threshold;
+		TimeFrequency<DataType> _temp_buffer;
+
+
+		
 	};
 
 } // namespace: rfim
