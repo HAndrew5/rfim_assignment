@@ -30,56 +30,45 @@ namespace rfim {
 	public:
 		using StrategyDataType = DataType;
 
-		MedianStandardDeviationRfi(DataType threshold = MedianStandardDeviationRfi<DataType>::default_threshold()) :
-			_threshold(threshold)
+		MedianStandardDeviationRfi(TimeFrequencyMetadata metadata, DataType threshold = MedianStandardDeviationRfi<DataType>::default_threshold()) :
+			_threshold(threshold),
+			_temp_buffer(metadata)
 		{}
 
-		void processImpl(TimeFrequency<DataType>& data_buffer)
+		std::size_t processImpl(TimeFrequency<DataType>& data_buffer)
 		{
-			std::size_t median_offset = data_buffer.get_number_of_spectra() / 2;
-			assert(median_offset > 2);
-			TimeFrequency<DataType> temp_buffer(data_buffer); // if memory is a concern, can just have 1 channels worth of temp and copy in loop
+			data_buffer.write_data_to_time_frequency(_temp_buffer); // if memory is a concern, can just have 1 channels worth of temp and copy in loop
 			
 			std::size_t n_flagged_channels = 0;
 
 			for (std::size_t i_channel =0; i_channel<data_buffer.get_number_of_channels(); ++i_channel)
 			{
-				// median
-				DataType* start_pointer = temp_buffer.get_raw_channel_start(i_channel);
-				DataType* median_pointer = temp_buffer.get_raw_channel_start(i_channel) + median_offset;
-				DataType* end_pointer = temp_buffer.get_raw_channel_start(i_channel) + temp_buffer.get_number_of_spectra() - 1;
-				std::nth_element(start_pointer, median_pointer, end_pointer);
-				DataType median = *median_pointer;
-
-				// STD
-				DataType square_sum = 0;
-				for (std::size_t i_sample = 0; i_sample < data_buffer.get_number_of_spectra(); ++i_sample)
+				DataType median = _temp_buffer.destructive_calculate_channel_median(i_channel);
+				if (does_channel_contain_rfi(data_buffer, i_channel, median))
 				{
-					DataType d = data_buffer.get_sample(i_channel, i_sample) - median;
-					square_sum += d * d;
+					n_flagged_channels++;
+					data_buffer.set_channel_to_value(i_channel, median);
 				}
-				DataType standard_deviation = std::sqrt(square_sum / data_buffer.get_number_of_spectra());
-
-				// Clean Data
-				DataType n_std = _threshold * standard_deviation;
-				for (std::size_t i_sample = 0; i_sample < data_buffer.get_number_of_spectra(); ++i_sample)
-				{
-					if (data_buffer.get_sample(i_channel, i_sample) > n_std + median)
-					{
-						n_flagged_channels++;
-						for (std::size_t j_sample = 0; j_sample < data_buffer.get_number_of_spectra(); ++j_sample)
-							data_buffer.get_sample(i_channel, j_sample) = median;
-						break;
-					}
-				}
-
-				std::cout << "Processed channel: " << i_channel << " \r";
 			}
-			std::cout << "channel flagged: " << n_flagged_channels << "\n";
+			return n_flagged_channels;
 		}
+		
+		bool does_channel_contain_rfi(const TimeFrequency<DataType>& data_buffer, ChannelCount channel, DataType median) const
+		{
+			float standard_deviation = data_buffer.calculate_channel_standard_deviation(channel, median);
+			DataType value_threshold = static_cast<DataType>(_threshold * standard_deviation) + median;
+			for (std::size_t i_sample = 0; i_sample < data_buffer.get_number_of_spectra(); ++i_sample)
+			{
+				if (data_buffer.get_sample(channel, i_sample) > value_threshold)
+					return true;
+			}
+			return false;
+		}
+		
 
 	private:
 		DataType _threshold;
+		TimeFrequency<DataType> _temp_buffer;
 
 		static DataType default_threshold()
 		{

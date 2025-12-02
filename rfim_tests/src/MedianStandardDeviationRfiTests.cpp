@@ -14,7 +14,7 @@ TEST(MedianRfiTest, BasicTest)
 		"../../data/generated_test_data.bin", __FILE__);
 
 	rfim::TimeFrequencyMetadata metadata;
-	rfim::MedianStandardDeviationRfi<float> rfi_module;
+	rfim::MedianStandardDeviationRfi<float> rfi_module(metadata);
 	rfim::FileProcessor<rfim::MedianStandardDeviationRfi<float>> processor(rfi_module, metadata);
 
 	EXPECT_EQ(processor.process_file(source_file_path, destination_file_path), 2);

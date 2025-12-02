@@ -8,6 +8,11 @@
 
 namespace rfim {
 
+	/*
+	Data is expected to be in a binary file with frequency channel major ordering i.e:
+	[channel 0 sample 0], [channel 0 sample 1], ... [channel 0 sample N-1], [channel 1 sample 0]
+	[channel 1 sample 1], ... [channel 1  sample N-1], ... [channel M-1 sample N-1]
+	*/
 	class DataReader
 	{
 	public:

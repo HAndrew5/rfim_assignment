@@ -43,7 +43,7 @@ namespace rfim {
 		}
 
 		static constexpr ChannelCount DEFAULT_FREQUENCY_CHANNELS = static_cast<ChannelCount>(4096);
-		static constexpr SpectraCount DEFAULT_NUMBER_OF_SPECTRA = static_cast<ChannelCount>(1e4);
+		static constexpr SpectraCount DEFAULT_NUMBER_OF_SPECTRA = static_cast<SpectraCount>(1e4);
 		static constexpr FrequencyMhz DEFAULT_FIRST_CHANNEL_FREQUENCY = static_cast<FrequencyMhz>(1700);
 		static constexpr FrequencyMhz DEFAULT_LAST_CHANNEL_FREQUENCY = static_cast<FrequencyMhz>(2000);
 		static constexpr FrequencyMhz DEFAULT_CHANNEL_WIDTH = static_cast<FrequencyMhz>((2000.0-1700.0) / 4096.0);
