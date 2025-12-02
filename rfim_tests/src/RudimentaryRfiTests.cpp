@@ -8,7 +8,7 @@
 TEST(RudimentaryRfiTest, BasicTest)
 {
 	std::string source_file_path = GetAbsoluteFilepathFromRelative(
-		"../../data/test_data.bin", __FILE__);
+		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
 
