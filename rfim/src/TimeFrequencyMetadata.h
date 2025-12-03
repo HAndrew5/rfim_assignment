@@ -1,6 +1,9 @@
 #ifndef INCLUDE_RFIM_TIME_FREQUENCY_METADATA
 #define INCLUDE_RFIM_TIME_FREQUENCY_METADATA
 
+#include<cstddef>
+
+
 namespace rfim {
 
 	typedef float FrequencyMhz;
