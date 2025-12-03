@@ -13,6 +13,12 @@
 
 namespace rfim {
 
+	/*
+	Class for holding time-frequency data with frequency channel major ordering i.e:
+	[channel 0 sample 0], [channel 0 sample 1], ... [channel 0 sample N-1], [channel 1 sample 0]
+	[channel 1 sample 1], ... [channel 1  sample N-1], ... [channel M-1 sample N-1]
+	Initialised with a TimeFrequencyMetadata and cannot be resized.
+	*/
 	template <typename DataType>
 	class TimeFrequency
 	{

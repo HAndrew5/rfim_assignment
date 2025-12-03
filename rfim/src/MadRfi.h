@@ -32,7 +32,7 @@ namespace rfim {
 	public:
 		using StrategyDataType = DataType;
 
-		MadRfi(TimeFrequencyMetadata metadata, float threshold = 4.5f) :
+		MadRfi(TimeFrequencyMetadata metadata, float threshold = 10.0f) :
 			_threshold(threshold),
 			_temp_buffer(metadata),
 			_median_offset(_temp_buffer.get_number_of_spectra() / 2),

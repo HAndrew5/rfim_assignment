@@ -4,6 +4,9 @@
 
 namespace rfim {
 
+	/*
+	* POD struct returned from FileProcessor "process_file" function.
+	*/
 	struct FileProcessorInfo
 	{
 		FileProcessorInfo(size_t number_of_cleaned_channels=0, size_t number_of_procesed_chunks=0, 

@@ -8,4 +8,4 @@ namespace rfim {
     const FrequencyMhz TimeFrequencyMetadata::DEFAULT_LAST_CHANNEL_FREQUENCY = static_cast<FrequencyMhz>(2000);
     const FrequencyMhz TimeFrequencyMetadata::DEFAULT_CHANNEL_WIDTH = static_cast<FrequencyMhz>((2000.0 - 1700.0) / 4096.0);
     const TimeIntervalSeconds TimeFrequencyMetadata::DEFAULT_SAMPLING_TIME = static_cast<TimeIntervalSeconds>(50e-6);
-} // namespace rfim
+} // namespace: rfim

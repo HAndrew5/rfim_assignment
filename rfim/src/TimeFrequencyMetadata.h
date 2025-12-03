@@ -8,6 +8,12 @@ namespace rfim {
 	typedef size_t ChannelCount;
 	typedef size_t SpectraCount;
 
+	/*
+	A POD class that holds information associated with a TimeFrequency class
+	Does not do any sanity checking on values
+	Can consider adding this if it becomes a problem e.g if a user might accidentally set the channels to 0,
+	leading to TimeFrequencies to be initialised with length 0 
+	*/
 	class TimeFrequencyMetadata
 	{
 	public:
@@ -49,5 +55,5 @@ namespace rfim {
 			return true;
 		}
 	};
-} // namespace rfim
+} // namespace: rfim
 #endif

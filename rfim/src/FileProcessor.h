@@ -10,6 +10,13 @@
 
 namespace rfim {
 
+	/*
+	This class is used to:
+	Load data from a binary file in chunks into a TimeFrequency buffer
+	Process the data with a selected RfiStrategy
+	Save the data to a new file
+	Return information on timing and amount of detected RFI
+	*/
 	template<typename StrategyType>
 	class FileProcessor
 	{

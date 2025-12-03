@@ -1,9 +1,6 @@
 #ifndef INCLUDE_RFIM_MEDIAN_STANDARD_DEVIATION_RFI
 #define INCLUDE_RFIM_MEDIAN_STANDARD_DEVIATION_RFI
 
-#include<algorithm>
-#include<cassert>
-
 #include"TimeFrequency.h"
 #include"RfiStrategy.h"
 
@@ -16,7 +13,6 @@ namespace rfim {
 	channel containing a sample greater than some threshold number of standard deviations above the median.
 	It has only been re-written to improve performance.
 	No parallelism has been used.
-
 	*/
 	template<typename DataType>
 	class MedianStandardDeviationRfi : public RfiStrategy<MedianStandardDeviationRfi<DataType>>
