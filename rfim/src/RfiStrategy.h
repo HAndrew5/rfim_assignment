@@ -11,10 +11,10 @@ namespace rfim {
 	RFI removal. 
 	When defining new derived classes:
 	Define: 
-		using DataType_t = DataType;
+		using StrategyDataType = DataType;
 	This allows the templated type of the derived class (e.g float, uint16_t) to be captured
 
-		size_t processImpl(TimeFrequency<DataType>& data_buffer)
+		size_t process_impl(TimeFrequency<DataType>& data_buffer)
 	This method should accept a TimeFrequency which will be cleaned in place.
 	It should return the number of RFI instances detected and cleaned.
 
@@ -28,7 +28,7 @@ namespace rfim {
 		template<typename TimeFrequencyType>
 		size_t process(TimeFrequencyType& buffer)
 		{
-			return static_cast<Derived*>(this)->processImpl(buffer);
+			return static_cast<Derived*>(this)->process_impl(buffer);
 		}
 	};
 

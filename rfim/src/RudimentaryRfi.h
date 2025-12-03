@@ -14,18 +14,16 @@ namespace rfim {
 	class and the RfiStrategy CRPT.
 	This serves as a baseline, but is not intended as an example of "clean" or
 	efficient code.
-	NOTE: This has NOT been changed to work with uint types, it is only valid for floats.
-	Please look to MedianStandardDeviationRfi for a similar strategy that is fully functional
-	and more optimised.
+	NOTE: This has NOT been changed to work with uint types, it is only valid for floats,
+	and has not been unit tested. Please look to MedianStandardDeviationRfi for a similar 
+	strategy that is fully functional and more optimised.
 	*/
 	template<typename DataType>
 	class RudimentaryRfi : public RfiStrategy<RudimentaryRfi<DataType>>
 	{
 		static_assert(
-			std::is_same<DataType, float>::value ||
-			std::is_same<DataType, uint8_t>::value ||
-			std::is_same<DataType, uint16_t>::value,
-			"RudimentaryRfi DataType must be float, uint8_t, or uint16_t"
+			std::is_same<DataType, float>::value,
+			"RudimentaryRfi DataType must be float"
 			);
 
 	public:
@@ -35,7 +33,7 @@ namespace rfim {
 			_threshold(threshold)
 		{}
 
-		size_t processImpl(TimeFrequency<DataType>& data_buffer)
+		size_t process_impl(TimeFrequency<DataType>& data_buffer)
 		{
 			std::cout << "[RudimentaryRfi] Processing...\n";
 			std::vector<DataType> median(data_buffer.get_number_of_channels());

@@ -27,7 +27,7 @@ TYPED_TEST(MadRfiTest, GetThresholdTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	rfim::MadRfi<TypeParam> rfi_module(metadata);
-	EXPECT_EQ(rfi_module.get_threshold(), 10.0f);
+	EXPECT_EQ(rfi_module.get_threshold(), 4.5f);
 }
 
 TYPED_TEST(MadRfiTest, ConstructThresholdThresholdTest)
@@ -97,7 +97,13 @@ TYPED_TEST(MadRfiTest, HighThresholdTest)
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 4;
 	metadata._number_of_spectra = 500;
-	rfim::MadRfi<TypeParam> rfi_module(metadata, 10000000.0f);
+	float threshold;
+	if (std::is_integral<TypeParam>::value)
+		threshold = 100.0f;
+	else
+		threshold = 1e8f;
+	
+	rfim::MadRfi<TypeParam> rfi_module(metadata, threshold);
 
 	rfim::TimeFrequency<TypeParam> time_frequency(metadata);
 	for (size_t i = 0; i < metadata._frequency_channels; ++i)
@@ -106,7 +112,7 @@ TYPED_TEST(MadRfiTest, HighThresholdTest)
 	time_frequency.get_sample(2, 234) = 46;
 	rfim::TimeFrequency<TypeParam> time_frequency_original(time_frequency);
 
-	// test no spikes found when the threshold is initialised low
+	// test no spikes found when the threshold is initialised very high
 	EXPECT_EQ(rfi_module.process(time_frequency), 0);
 	EXPECT_TRUE(time_frequency.is_equal(time_frequency_original));
 }

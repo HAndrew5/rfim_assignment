@@ -51,7 +51,7 @@ These strategies are implemented using the CRTP pattern for compile-time polymor
 #include"FileProcessor.h"
 
 rfim::TimeFrequencyMetadata metadata; // initialised with standard values
-rfim::MadRfi<float> rfi_module(metadata); // create MAD RFIM to operate on float's
+rfim::MadRfi<float> rfi_module(metadata); // create MAD RFIM with default threshold to operate on float's
 rfim::FileProcessor<rfim::MadRfi<float>> processor(rfi_module, metadata); // create processor using MAD
 processor.process_file(source_file_path, destination_file_path); // clean data and save to file
 

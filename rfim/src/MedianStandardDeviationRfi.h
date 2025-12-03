@@ -11,8 +11,7 @@ namespace rfim {
 	It is based on the method used in "rfi_clean.cpp".
 	It calculates the standard deviation from the median and sets all samples to the median for every 
 	channel containing a sample greater than some threshold number of standard deviations above the median.
-	It has only been re-written to improve performance.
-	No parallelism has been used.
+	The detection threshold can be set with a constructor argument.
 	*/
 	template<typename DataType>
 	class MedianStandardDeviationRfi : public RfiStrategy<MedianStandardDeviationRfi<DataType>>
@@ -32,10 +31,9 @@ namespace rfim {
 			_temp_buffer(metadata)
 		{}
 
-		size_t processImpl(TimeFrequency<DataType>& data_buffer)
+		size_t process_impl(TimeFrequency<DataType>& data_buffer)
 		{
 			data_buffer.write_data_to_time_frequency(_temp_buffer); // if memory is a concern, can just have 1 channels worth of temp and copy in loop
-			
 			size_t n_flagged_channels = 0;
 
 			for (size_t i_channel =0; i_channel<data_buffer.get_number_of_channels(); ++i_channel)
@@ -53,10 +51,10 @@ namespace rfim {
 		bool does_channel_contain_rfi(const TimeFrequency<DataType>& data_buffer, ChannelCount channel, DataType median) const
 		{
 			float standard_deviation = data_buffer.calculate_channel_standard_deviation(channel, median);
-			DataType value_threshold = static_cast<DataType>(_threshold * standard_deviation) + median;
+			DataType rfi_threshold = static_cast<DataType>(_threshold * standard_deviation) + median;
 			for (size_t i_sample = 0; i_sample < data_buffer.get_number_of_spectra(); ++i_sample)
 			{
-				if (data_buffer.get_sample(channel, i_sample) > value_threshold)
+				if (data_buffer.get_sample(channel, i_sample) > rfi_threshold)
 					return true;
 			}
 			return false;
