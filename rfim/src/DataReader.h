@@ -9,6 +9,7 @@
 namespace rfim {
 
 	/*
+	This class reads TimeFrequency data from a binary file.
 	Data is expected to be in a binary file with frequency channel major ordering i.e:
 	[channel 0 sample 0], [channel 0 sample 1], ... [channel 0 sample N-1], [channel 1 sample 0]
 	[channel 1 sample 1], ... [channel 1  sample N-1], ... [channel M-1 sample N-1]
@@ -19,17 +20,17 @@ namespace rfim {
 		DataReader(std::string file_path);
 		~DataReader();
 
-		std::size_t get_file_length_bytes() { return _file_size; }
-		std::size_t get_remaining_file_length_bytes();
+		size_t get_file_length_bytes() { return _file_size; }
+		size_t get_remaining_file_length_bytes();
 
 		template <typename DataType>
-		std::size_t get_file_length()
+		size_t get_file_length()
 		{
 			return get_file_length_bytes() / sizeof(DataType);
 		}
 
 		template <typename DataType>
-		std::size_t get_remaining_file_length()
+		size_t get_remaining_file_length()
 		{
 			return get_remaining_file_length_bytes() / sizeof(DataType);
 		}
@@ -50,7 +51,7 @@ namespace rfim {
 
 	private:
 		std::ifstream _in_stream;
-		std::size_t _file_size;
+		size_t _file_size;
 	};
 
 } // namespace: rfim

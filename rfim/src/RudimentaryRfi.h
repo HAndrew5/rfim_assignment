@@ -14,18 +14,16 @@ namespace rfim {
 	class and the RfiStrategy CRPT.
 	This serves as a baseline, but is not intended as an example of "clean" or
 	efficient code.
-	NOTE: This has NOT been changed to work with uint types, it is only valid for floats.
-	Please look to MedianStandardDeviationRfi for a similar strategy that is fully functional
-	and more optimised.
+	NOTE: This has NOT been changed to work with uint types, it is only valid for floats,
+	and has not been unit tested. Please look to MedianStandardDeviationRfi for a similar 
+	strategy that is fully functional and more optimised.
 	*/
 	template<typename DataType>
 	class RudimentaryRfi : public RfiStrategy<RudimentaryRfi<DataType>>
 	{
 		static_assert(
-			std::is_same<DataType, float>::value ||
-			std::is_same<DataType, uint8_t>::value ||
-			std::is_same<DataType, uint16_t>::value,
-			"RudimentaryRfi DataType must be float, uint8_t, or uint16_t"
+			std::is_same<DataType, float>::value,
+			"RudimentaryRfi DataType must be float"
 			);
 
 	public:
@@ -35,7 +33,7 @@ namespace rfim {
 			_threshold(threshold)
 		{}
 
-		std::size_t processImpl(TimeFrequency<DataType>& data_buffer)
+		size_t process_impl(TimeFrequency<DataType>& data_buffer)
 		{
 			std::cout << "[RudimentaryRfi] Processing...\n";
 			std::vector<DataType> median(data_buffer.get_number_of_channels());
@@ -43,7 +41,7 @@ namespace rfim {
 
 			calculate_median(data_buffer, median);
 			calculate_std(data_buffer, median, std_dev);
-			std::size_t n_cleaned_channels = clean_data(data_buffer, median, std_dev);
+			size_t n_cleaned_channels = clean_data(data_buffer, median, std_dev);
 			return n_cleaned_channels;
 		}
 
@@ -111,9 +109,9 @@ namespace rfim {
 			}
 		}
 
-		std::size_t clean_data(TimeFrequency<DataType>& chunk, std::vector<DataType>& median, std::vector<DataType>& std_dev)
+		size_t clean_data(TimeFrequency<DataType>& chunk, std::vector<DataType>& median, std::vector<DataType>& std_dev)
 		{
-			std::size_t number_of_channels_flagged = 0;
+			size_t number_of_channels_flagged = 0;
 			for (unsigned channel = 0; channel < chunk.get_number_of_channels(); ++channel)
 			{
 				int flag = 0;

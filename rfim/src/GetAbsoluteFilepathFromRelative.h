@@ -18,12 +18,12 @@ namespace {
 			return reference_filepath + relative_filepath;
 		}
 
-		std::size_t last_back_slash_idx = reference_filepath.rfind('\\', reference_filepath.length());
+		size_t last_back_slash_idx = reference_filepath.rfind('\\', reference_filepath.length());
 		if (last_back_slash_idx == std::string::npos) { last_back_slash_idx = 0; }
-		std::size_t last_forwards_lash_idx = reference_filepath.rfind('/', reference_filepath.length());
+		size_t last_forwards_lash_idx = reference_filepath.rfind('/', reference_filepath.length());
 		if (last_forwards_lash_idx == std::string::npos) { last_forwards_lash_idx = 0; }
 
-		const std::size_t last_slash_idx = std::max(last_back_slash_idx, last_forwards_lash_idx);
+		const size_t last_slash_idx = std::max(last_back_slash_idx, last_forwards_lash_idx);
 
 		if (std::string::npos == 0)
 		{

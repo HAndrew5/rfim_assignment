@@ -10,6 +10,13 @@
 
 namespace rfim {
 
+	/*
+	This class is used to:
+	Load data from a binary file in chunks into a TimeFrequency buffer
+	Process the data with a selected RfiStrategy
+	Save the data to a new file
+	Return information on timing and amount of detected RFI
+	*/
 	template<typename StrategyType>
 	class FileProcessor
 	{
@@ -27,11 +34,11 @@ namespace rfim {
 			TimeFrequency<DataType>data_buffer(_chunk_info);
 			DataReader reader(source_filepath);
 			DataWriter writer(destination_filepath);
-			std::size_t number_of_whole_chunks = reader.get_file_length<DataType>() / data_buffer.get_total_samples();
-			std::size_t number_of_cleaned_channels = 0;
+			size_t number_of_whole_chunks = reader.get_file_length<DataType>() / data_buffer.get_total_samples();
+			size_t number_of_cleaned_channels = 0;
 			double total_time = 0.0;
 
-			for (std::size_t i = 0; i < number_of_whole_chunks; ++i)
+			for (size_t i = 0; i < number_of_whole_chunks; ++i)
 			{
 				reader.read_time_frequency_data_from_file(data_buffer);
 

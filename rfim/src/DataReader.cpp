@@ -20,7 +20,7 @@ namespace rfim {
 			throw std::runtime_error(
 				std::string("Failed to find the length of file '") + file_path + "' when creating rfim::DataReader");
 		}
-		_file_size = static_cast<std::size_t>(file_size);
+		_file_size = static_cast<size_t>(file_size);
 		_in_stream.seekg(0, std::ios::beg);
 	}
 
@@ -29,7 +29,7 @@ namespace rfim {
 		_in_stream.close();
 	}
 	
-	std::size_t DataReader::get_remaining_file_length_bytes()
+	size_t DataReader::get_remaining_file_length_bytes()
 	{
 		std::streampos current_position = _in_stream.tellg();
 		if (current_position < 0) {
@@ -39,7 +39,7 @@ namespace rfim {
 
 		assert(current_position <= _file_size);
 
-		return _file_size - static_cast<std::size_t>(current_position);
+		return _file_size - static_cast<size_t>(current_position);
 	}
 	
 } // namespace: rfim

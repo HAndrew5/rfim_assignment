@@ -7,11 +7,18 @@
 #include<cassert>
 #include<stdexcept>
 #include<algorithm>
+#include<cstdint>
 
 #include"TimeFrequencyMetadata.h"
 
 namespace rfim {
 
+	/*
+	Class for holding time-frequency data with frequency channel major ordering i.e:
+	[channel 0 sample 0], [channel 0 sample 1], ... [channel 0 sample N-1], [channel 1 sample 0]
+	[channel 1 sample 1], ... [channel 1  sample N-1], ... [channel M-1 sample N-1]
+	Initialised with a TimeFrequencyMetadata and cannot be resized.
+	*/
 	template <typename DataType>
 	class TimeFrequency
 	{
@@ -99,7 +106,7 @@ namespace rfim {
 			// Calculate using floating point to avoid wrap around from unsigned types
 			// Accept channel_average as float incase mean etc. is used. Return as float
 			float square_sum = 0.0f;
-			for (std::size_t i_sample = 0; i_sample < get_number_of_spectra(); ++i_sample)
+			for (size_t i_sample = 0; i_sample < get_number_of_spectra(); ++i_sample)
 			{
 				float d = static_cast<float>(get_sample(channel_index, i_sample)) - channel_average;
 				square_sum += d * d;
@@ -113,7 +120,7 @@ namespace rfim {
 		calculate_channel_standard_deviation(ChannelCount channel_index, DataType channel_average) const
 		{
 			DataType square_sum = 0.0;
-			for (std::size_t i_sample = 0; i_sample < get_number_of_spectra(); ++i_sample)
+			for (size_t i_sample = 0; i_sample < get_number_of_spectra(); ++i_sample)
 			{
 				DataType d = get_sample(channel_index, i_sample) - channel_average;
 				square_sum += d * d;
@@ -132,7 +139,7 @@ namespace rfim {
 			if (!_metadata.is_equal(test_data._metadata))
 				return false;
 
-			for (std::size_t i = 0; i < get_total_samples(); ++i)
+			for (size_t i = 0; i < get_total_samples(); ++i)
 			{
 				if (_data[i] != test_data._data[i])
 					return false;
@@ -151,7 +158,7 @@ namespace rfim {
 				return false;
 
 			constexpr float tolerence = 1e-6f;
-			for (std::size_t i = 0; i < get_total_samples(); ++i)
+			for (size_t i = 0; i < get_total_samples(); ++i)
 			{
 				if (std::fabs(_data[i] - test_data._data[i]) > tolerence)
 					return false;
@@ -191,7 +198,7 @@ namespace rfim {
 
 		ChannelCount get_number_of_channels() const { return _metadata._frequency_channels; }
 		SpectraCount get_number_of_spectra() const { return _metadata._number_of_spectra; }
-		std::size_t get_total_samples() const { return _metadata._frequency_channels * _metadata._number_of_spectra; }
+		size_t get_total_samples() const { return _metadata._frequency_channels * _metadata._number_of_spectra; }
 		TimeFrequencyMetadata get_metadata() const { return _metadata; }
 
 		TimeFrequency& operator=(const TimeFrequency&) = delete;

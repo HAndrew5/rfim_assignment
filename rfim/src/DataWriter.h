@@ -8,6 +8,12 @@
 
 namespace rfim {
 
+	/*
+	This class writes TimeFrequency data to a binary file.
+	Data will be saved in a format with frequency channel major ordering i.e:
+	[channel 0 sample 0], [channel 0 sample 1], ... [channel 0 sample N-1], [channel 1 sample 0]
+	[channel 1 sample 1], ... [channel 1  sample N-1], ... [channel M-1 sample N-1]
+	*/
 	class DataWriter
 	{
 	public:

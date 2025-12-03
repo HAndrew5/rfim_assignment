@@ -5,12 +5,25 @@ namespace rfim {
 
 	typedef float FrequencyMhz;
 	typedef float TimeIntervalSeconds;
-	typedef std::size_t ChannelCount;
-	typedef std::size_t SpectraCount;
+	typedef size_t ChannelCount;
+	typedef size_t SpectraCount;
 
+	/*
+	A POD class that holds information associated with a TimeFrequency class
+	Does not do any sanity checking on values
+	Can consider adding this if it becomes a problem e.g if a user might accidentally set the channels to 0,
+	leading to TimeFrequencies to be initialised with length 0 
+	*/
 	class TimeFrequencyMetadata
 	{
 	public:
+		static const ChannelCount DEFAULT_FREQUENCY_CHANNELS;
+		static const SpectraCount DEFAULT_NUMBER_OF_SPECTRA;
+		static const FrequencyMhz DEFAULT_FIRST_CHANNEL_FREQUENCY;
+		static const FrequencyMhz DEFAULT_LAST_CHANNEL_FREQUENCY;
+		static const FrequencyMhz DEFAULT_CHANNEL_WIDTH;
+		static const TimeIntervalSeconds DEFAULT_SAMPLING_TIME;
+
 		TimeFrequencyMetadata() :
 			_frequency_channels(DEFAULT_FREQUENCY_CHANNELS),
 			_number_of_spectra(DEFAULT_NUMBER_OF_SPECTRA),
@@ -41,13 +54,6 @@ namespace rfim {
 			
 			return true;
 		}
-
-		static constexpr ChannelCount DEFAULT_FREQUENCY_CHANNELS = static_cast<ChannelCount>(4096);
-		static constexpr SpectraCount DEFAULT_NUMBER_OF_SPECTRA = static_cast<SpectraCount>(1e4);
-		static constexpr FrequencyMhz DEFAULT_FIRST_CHANNEL_FREQUENCY = static_cast<FrequencyMhz>(1700);
-		static constexpr FrequencyMhz DEFAULT_LAST_CHANNEL_FREQUENCY = static_cast<FrequencyMhz>(2000);
-		static constexpr FrequencyMhz DEFAULT_CHANNEL_WIDTH = static_cast<FrequencyMhz>((2000.0-1700.0) / 4096.0);
-		static constexpr TimeIntervalSeconds DEFAULT_SAMPLING_TIME = static_cast<TimeIntervalSeconds>(50e-6);
 	};
-} // namespace rfim
+} // namespace: rfim
 #endif
