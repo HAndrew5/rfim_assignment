@@ -2,50 +2,50 @@
 
 #include"../../rfim/src/DataReader.h"
 #include"../../rfim/src/GetAbsoluteFilepathFromRelative.h"
-#include"../../rfim/src/MedianStandardDeviationRfi.h"
+#include"../../rfim/src/MadRfi.h"
 #include"../../rfim/src/FileProcessor.h"
 
 
 template <typename T>
-class MedianRfiTest : public ::testing::Test
+class MadRfiTest : public ::testing::Test
 {
 public:
 	using TF = rfim::TimeFrequency<T>;
 };
 
 using MyTypes = ::testing::Types<float, uint8_t, uint16_t>;
-TYPED_TEST_SUITE(MedianRfiTest, MyTypes);
+TYPED_TEST_SUITE(MadRfiTest, MyTypes);
 
 
-TYPED_TEST(MedianRfiTest, ConstructorTest)
+TYPED_TEST(MadRfiTest, ConstructorTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
-	EXPECT_NO_THROW(rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata));
+	EXPECT_NO_THROW(rfim::MadRfi<TypeParam> rfi_module(metadata));
 }
 
-TYPED_TEST(MedianRfiTest, GetThresholdTest)
+TYPED_TEST(MadRfiTest, GetThresholdTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata);
+	rfim::MadRfi<TypeParam> rfi_module(metadata);
 	EXPECT_EQ(rfi_module.get_threshold(), 4.5f);
 }
 
-TYPED_TEST(MedianRfiTest, ConstructThresholdThresholdTest)
+TYPED_TEST(MadRfiTest, ConstructThresholdThresholdTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	float threshold = 25.3;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata, threshold);
-	
+	rfim::MadRfi<TypeParam> rfi_module(metadata, threshold);
+
 	EXPECT_EQ(rfi_module.get_threshold(), threshold);
 }
 
-TYPED_TEST(MedianRfiTest, SingleDoesChannelContainRfiTest)
+TYPED_TEST(MadRfiTest, SingleDoesChannelContainRfiTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 1;
 	metadata._number_of_spectra = 500;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata);
-	
+	rfim::MadRfi<TypeParam> rfi_module(metadata);
+
 	// test trivial case of 0's
 	rfim::TimeFrequency<TypeParam> time_frequency(metadata);
 	EXPECT_FALSE(rfi_module.does_channel_contain_rfi(time_frequency, 0, 0));
@@ -55,12 +55,12 @@ TYPED_TEST(MedianRfiTest, SingleDoesChannelContainRfiTest)
 	EXPECT_TRUE(rfi_module.does_channel_contain_rfi(time_frequency, 0, 0));
 }
 
-TYPED_TEST(MedianRfiTest, MultipleDoesChannelContainRfiTest)
+TYPED_TEST(MadRfiTest, MultipleDoesChannelContainRfiTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 4;
 	metadata._number_of_spectra = 500;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata);
+	rfim::MadRfi<TypeParam> rfi_module(metadata);
 
 	// test a big spike is found on multiple channels in the same TimeFrequency
 	rfim::TimeFrequency<TypeParam> time_frequency(metadata);
@@ -73,12 +73,12 @@ TYPED_TEST(MedianRfiTest, MultipleDoesChannelContainRfiTest)
 	EXPECT_FALSE(rfi_module.does_channel_contain_rfi(time_frequency, 3, 0));
 }
 
-TYPED_TEST(MedianRfiTest, ProcessTest)
+TYPED_TEST(MadRfiTest, ProcessTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 4;
 	metadata._number_of_spectra = 500;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata);
+	rfim::MadRfi<TypeParam> rfi_module(metadata);
 
 	rfim::TimeFrequency<TypeParam> time_frequency(metadata);
 	for (size_t i = 0; i < metadata._frequency_channels; ++i)
@@ -92,12 +92,12 @@ TYPED_TEST(MedianRfiTest, ProcessTest)
 		EXPECT_EQ(*(time_frequency.get_raw() + i), 1);
 }
 
-TYPED_TEST(MedianRfiTest, HighThresholdTest)
+TYPED_TEST(MadRfiTest, HighThresholdTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	metadata._frequency_channels = 4;
 	metadata._number_of_spectra = 500;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata, 100);
+	rfim::MadRfi<TypeParam> rfi_module(metadata, 10000000.0f);
 
 	rfim::TimeFrequency<TypeParam> time_frequency(metadata);
 	for (size_t i = 0; i < metadata._frequency_channels; ++i)
@@ -106,15 +106,15 @@ TYPED_TEST(MedianRfiTest, HighThresholdTest)
 	time_frequency.get_sample(2, 234) = 46;
 	rfim::TimeFrequency<TypeParam> time_frequency_original(time_frequency);
 
-	// test no spikes found when the threshold is initialised high
+	// test no spikes found when the threshold is initialised low
 	EXPECT_EQ(rfi_module.process(time_frequency), 0);
 	EXPECT_TRUE(time_frequency.is_equal(time_frequency_original));
 }
 
-TYPED_TEST(MedianRfiTest, WrongSizeTimeFrequencyTest)
+TYPED_TEST(MadRfiTest, WrongSizeTimeFrequencyTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
-	rfim::MedianStandardDeviationRfi<TypeParam> rfi_module(metadata);
+	rfim::MadRfi<TypeParam> rfi_module(metadata);
 	metadata._frequency_channels = 4;
 	metadata._number_of_spectra = 500;
 

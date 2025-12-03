@@ -19,17 +19,17 @@ namespace rfim {
 		DataReader(std::string file_path);
 		~DataReader();
 
-		std::size_t get_file_length_bytes() { return _file_size; }
-		std::size_t get_remaining_file_length_bytes();
+		size_t get_file_length_bytes() { return _file_size; }
+		size_t get_remaining_file_length_bytes();
 
 		template <typename DataType>
-		std::size_t get_file_length()
+		size_t get_file_length()
 		{
 			return get_file_length_bytes() / sizeof(DataType);
 		}
 
 		template <typename DataType>
-		std::size_t get_remaining_file_length()
+		size_t get_remaining_file_length()
 		{
 			return get_remaining_file_length_bytes() / sizeof(DataType);
 		}
@@ -50,7 +50,7 @@ namespace rfim {
 
 	private:
 		std::ifstream _in_stream;
-		std::size_t _file_size;
+		size_t _file_size;
 	};
 
 } // namespace: rfim

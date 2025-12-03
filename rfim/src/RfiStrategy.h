@@ -13,7 +13,7 @@ namespace rfim {
 	class RfiStrategy {
 	public:
 		template<typename TimeFrequencyType>
-		std::size_t process(TimeFrequencyType& buffer)
+		size_t process(TimeFrequencyType& buffer)
 		{
 			return static_cast<Derived*>(this)->processImpl(buffer);
 		}

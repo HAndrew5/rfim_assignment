@@ -5,5 +5,6 @@ DataReaderTests.cpp
 DataWriterTests.cpp
 RudimentaryRfiTests.cpp
 MedianStandardDeviationRfiTests.cpp
+MadRfiTests.cpp
 FileProcessorTests.cpp
 )

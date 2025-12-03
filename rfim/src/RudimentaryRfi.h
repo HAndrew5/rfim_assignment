@@ -35,7 +35,7 @@ namespace rfim {
 			_threshold(threshold)
 		{}
 
-		std::size_t processImpl(TimeFrequency<DataType>& data_buffer)
+		size_t processImpl(TimeFrequency<DataType>& data_buffer)
 		{
 			std::cout << "[RudimentaryRfi] Processing...\n";
 			std::vector<DataType> median(data_buffer.get_number_of_channels());
@@ -43,7 +43,7 @@ namespace rfim {
 
 			calculate_median(data_buffer, median);
 			calculate_std(data_buffer, median, std_dev);
-			std::size_t n_cleaned_channels = clean_data(data_buffer, median, std_dev);
+			size_t n_cleaned_channels = clean_data(data_buffer, median, std_dev);
 			return n_cleaned_channels;
 		}
 
@@ -111,9 +111,9 @@ namespace rfim {
 			}
 		}
 
-		std::size_t clean_data(TimeFrequency<DataType>& chunk, std::vector<DataType>& median, std::vector<DataType>& std_dev)
+		size_t clean_data(TimeFrequency<DataType>& chunk, std::vector<DataType>& median, std::vector<DataType>& std_dev)
 		{
-			std::size_t number_of_channels_flagged = 0;
+			size_t number_of_channels_flagged = 0;
 			for (unsigned channel = 0; channel < chunk.get_number_of_channels(); ++channel)
 			{
 				int flag = 0;

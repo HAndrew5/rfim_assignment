@@ -28,7 +28,7 @@ TYPED_TEST(TimeFrequencyTest, ConstructorTest)
 
 	// check for default (0) initialisation
 	TypeParam default_value = static_cast<TypeParam>(0);
-	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+	for (size_t i = 0; i < new_time_frequency.get_total_samples(); ++i)
 		EXPECT_EQ(*(new_time_frequency.get_raw() + i), default_value);
 }
 
@@ -83,7 +83,7 @@ TYPED_TEST(TimeFrequencyTest, ReadFromRawTest)
 	TF new_time_frequency(metadata);
 
 	std::unique_ptr<TypeParam[]> rawBuffer(new TypeParam[new_time_frequency.get_total_samples()]);
-	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+	for (size_t i = 0; i < new_time_frequency.get_total_samples(); ++i)
 		rawBuffer[i] = static_cast<TypeParam>(i);
 
 	// test exception thrown on null arg
@@ -92,7 +92,7 @@ TYPED_TEST(TimeFrequencyTest, ReadFromRawTest)
 	new_time_frequency.read_data_from_raw(rawBuffer.get());
 
 	// test that all data was read into TimeFrequency
-	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+	for (size_t i = 0; i < new_time_frequency.get_total_samples(); ++i)
 		EXPECT_EQ(rawBuffer[i], *(new_time_frequency.get_raw() + i));
 
 	// test a deep copy has been made
@@ -109,7 +109,7 @@ TYPED_TEST(TimeFrequencyTest, WriteToRawTest)
 	metadata._number_of_spectra = 10;
 	metadata._frequency_channels = 20;
 	TF new_time_frequency(metadata);
-	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+	for (size_t i = 0; i < new_time_frequency.get_total_samples(); ++i)
 		*(new_time_frequency.get_raw() + i) = static_cast<TypeParam>(i);
 
 	std::unique_ptr<TypeParam[]> rawBuffer(new TypeParam[new_time_frequency.get_total_samples()]);
@@ -120,7 +120,7 @@ TYPED_TEST(TimeFrequencyTest, WriteToRawTest)
 	new_time_frequency.write_data_to_raw(rawBuffer.get());
 
 	// test that all data was written from TimeFrequency
-	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+	for (size_t i = 0; i < new_time_frequency.get_total_samples(); ++i)
 		EXPECT_EQ(rawBuffer[i], *(new_time_frequency.get_raw() + i));
 
 	// test a deep copy has been made
@@ -137,7 +137,7 @@ TYPED_TEST(TimeFrequencyTest, WriteToTimeFrequencyTest)
 	metadata._number_of_spectra = 10;
 	metadata._frequency_channels = 20;
 	TF new_time_frequency(metadata);
-	for (int i = 0; i < new_time_frequency.get_total_samples(); ++i)
+	for (size_t i = 0; i < new_time_frequency.get_total_samples(); ++i)
 		*(new_time_frequency.get_raw() + i) = static_cast<TypeParam>(i);
 
 	// test equality after write
@@ -170,19 +170,19 @@ TYPED_TEST(TimeFrequencyTest, SetChannelToValueTest)
 
 	//test only channel 0 has been set
 	time_frequency.set_channel_to_value(0, value);
-	for (int i = 0; i < time_frequency.get_number_of_spectra(); ++i)
+	for (size_t i = 0; i < time_frequency.get_number_of_spectra(); ++i)
 		EXPECT_EQ(time_frequency.get_sample(0,i), value);
-	for (int i = time_frequency.get_number_of_spectra(); i < time_frequency.get_total_samples(); ++i)
+	for (size_t i = time_frequency.get_number_of_spectra(); i < time_frequency.get_total_samples(); ++i)
 		EXPECT_EQ(time_frequency.get_raw()[i], zero_value);
 
 	// test setting last channel
 	TypeParam second_value = 10;
 	time_frequency.set_channel_to_value(19, second_value);
-	for (int i = 0; i < time_frequency.get_number_of_spectra(); ++i)
+	for (size_t i = 0; i < time_frequency.get_number_of_spectra(); ++i)
 		EXPECT_EQ(time_frequency.get_sample(0, i), value);
-	for (int i = time_frequency.get_number_of_spectra(); i < time_frequency.get_total_samples() - time_frequency.get_number_of_spectra(); ++i)
+	for (size_t i = time_frequency.get_number_of_spectra(); i < time_frequency.get_total_samples() - time_frequency.get_number_of_spectra(); ++i)
 		EXPECT_EQ(time_frequency.get_raw()[i], zero_value);
-	for (int i = 0; i < time_frequency.get_number_of_spectra(); ++i)
+	for (size_t i = 0; i < time_frequency.get_number_of_spectra(); ++i)
 		EXPECT_EQ(*(time_frequency.get_raw_channel_start(19)+i), second_value);
 }
 
@@ -238,7 +238,7 @@ TYPED_TEST(TimeFrequencyTest, GetRawTest)
 	EXPECT_EQ(*new_time_frequency.get_raw(), new_value);
 
 	// check setting and getting a new value to end of data
-	std::size_t end_index = (metadata._frequency_channels * metadata._number_of_spectra) - 1;
+	size_t end_index = (metadata._frequency_channels * metadata._number_of_spectra) - 1;
 	*(new_time_frequency.get_raw() + end_index) = new_value;
 	EXPECT_EQ(*(new_time_frequency.get_raw() + end_index), new_value);
 }
@@ -257,13 +257,13 @@ TYPED_TEST(TimeFrequencyTest, GetRawChannelStartTest)
 	// check setting and getting a new value at channel 1
 	TypeParam new_value = static_cast<TypeParam>(10);
 	*new_time_frequency.get_raw_channel_start(1) = new_value;
-	std::size_t channel_one_index = metadata._number_of_spectra;
+	size_t channel_one_index = metadata._number_of_spectra;
 	EXPECT_EQ(*(new_time_frequency.get_raw()+ channel_one_index), new_value);
 	EXPECT_EQ(*new_time_frequency.get_raw_channel_start(1), new_value);
 
 	// check setting and getting a new value at last channel
 	*new_time_frequency.get_raw_channel_start(metadata._frequency_channels-1) = new_value;
-	std::size_t channel_end_index = (metadata._frequency_channels-1) * metadata._number_of_spectra;
+	size_t channel_end_index = (metadata._frequency_channels-1) * metadata._number_of_spectra;
 	EXPECT_EQ(*(new_time_frequency.get_raw() + channel_end_index), new_value);
 	EXPECT_EQ(*new_time_frequency.get_raw_channel_start(metadata._frequency_channels-1), new_value);
 }
@@ -282,13 +282,13 @@ TYPED_TEST(TimeFrequencyTest, GetRawChannelEndTest)
 	// check setting and getting a new value for channel 1
 	TypeParam new_value = static_cast<TypeParam>(10);
 	*new_time_frequency.get_raw_channel_end(1) = new_value;
-	std::size_t channel_one_end_index = metadata._number_of_spectra + metadata._number_of_spectra - 1;
+	size_t channel_one_end_index = metadata._number_of_spectra + metadata._number_of_spectra - 1;
 	EXPECT_EQ(*(new_time_frequency.get_raw() + channel_one_end_index), new_value);
 	EXPECT_EQ(*new_time_frequency.get_raw_channel_end(1), new_value);
 
 	// check setting and getting a new value at last channel
 	*new_time_frequency.get_raw_channel_end(metadata._frequency_channels - 1) = new_value;
-	std::size_t channel_end_index = (metadata._frequency_channels * metadata._number_of_spectra) - 1;
+	size_t channel_end_index = (metadata._frequency_channels * metadata._number_of_spectra) - 1;
 	EXPECT_EQ(*(new_time_frequency.get_raw() + channel_end_index), new_value);
 	EXPECT_EQ(*new_time_frequency.get_raw_channel_end(metadata._frequency_channels - 1), new_value);
 }
@@ -388,7 +388,7 @@ TYPED_TEST(TimeFrequencyTest, BasicDestructiveCalculateChannelMedianCorrputionTe
 	// test only selected channel is corrupted
 	TypeParam expected_median = 4;
 	EXPECT_EQ(time_frequency.destructive_calculate_channel_median(1), expected_median);
-	for (std::size_t i = 0; i < 7; ++i)
+	for (size_t i = 0; i < 7; ++i)
 	{
 		EXPECT_EQ(time_frequency.get_sample(0,i), channel_values[i]);
 		EXPECT_EQ(time_frequency.get_sample(2, i), channel_values[i]);

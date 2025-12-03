@@ -102,7 +102,7 @@ TEST(DataReaderTest, FileRemainingLengthBytesTest)
 	metadata._frequency_channels = 5;
 	rfim::TimeFrequency<float> data_buffer(metadata);
 	test_reader.read_time_frequency_data_from_file(data_buffer);
-	std::size_t expected_bytes = 327680000 - (data_buffer.get_total_samples()*sizeof(float));
+	size_t expected_bytes = 327680000 - (data_buffer.get_total_samples()*sizeof(float));
 	EXPECT_EQ(test_reader.get_remaining_file_length_bytes(), expected_bytes);
 
 	expected_bytes = 327680000 - (2*data_buffer.get_total_samples() * sizeof(float));
@@ -116,7 +116,7 @@ TEST(DataReaderTest, FloatFileRemainingLengthTest)
 		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	std::size_t expected_float = 81920000;
+	size_t expected_float = 81920000;
 	EXPECT_EQ(test_reader.get_remaining_file_length<float>(), expected_float);
 
 	rfim::TimeFrequencyMetadata metadata;
@@ -137,7 +137,7 @@ TEST(DataReaderTest, Uint8FileRemainingLengthTest)
 		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	std::size_t expected_uint8 = 327680000;
+	size_t expected_uint8 = 327680000;
 	EXPECT_EQ(test_reader.get_remaining_file_length<uint8_t>(), expected_uint8);
 
 	rfim::TimeFrequencyMetadata metadata;
@@ -158,7 +158,7 @@ TEST(DataReaderTest, Uint16FileRemainingLengthTest)
 		"../../data/data.bin", __FILE__);
 
 	rfim::DataReader test_reader(source_file_path);
-	std::size_t expected_uint16 = 163840000;
+	size_t expected_uint16 = 163840000;
 	EXPECT_EQ(test_reader.get_remaining_file_length<uint16_t>(), expected_uint16);
 
 	rfim::TimeFrequencyMetadata metadata;
