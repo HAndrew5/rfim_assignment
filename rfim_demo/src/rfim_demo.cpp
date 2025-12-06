@@ -7,6 +7,8 @@
 #include"../../rfim/src/RudimentaryRfi.h"
 #include"../../rfim/src/GetAbsoluteFilepathFromRelative.h"
 #include"../../rfim/src/MadRfi.h"
+#include"../../rfim/src/MedianParallelRfi.h"
+#include"../../rfim/src/MadParallelRfi.h"
 
 
 int main(void)
@@ -17,6 +19,8 @@ int main(void)
 	std::cout << "Select a type of RFIM:\n";
 	std::cout << "* 1: MedianStandardDeviationRfi (Set whole channel to median if sample exceeds some threshold above standard deviation) \n";
 	std::cout << "* 2: MadRfi (Set whole channel to median if sample exceeds some threshold above median absolute distribution) \n";
+	std::cout << "* 3: MedianParallelRfi (OMP Parallel version of MedianStandardDeviationRfi) \n";
+	std::cout << "* 3: MadParallelRfi (OMP Parallel version of MadRfi) \n";
 	std::cout << "* 9: RudimentaryRfi (Basic implementation based on provided 'code 'rfi_clean.cpp' WARNING: WILL TAKE A LONG TIME) \n";
 	std::cout << "* q: Quit \n";
 	std::cout << std::string(100, '=') + "\n\n";
@@ -49,10 +53,32 @@ int main(void)
 		destination_file_path = GetAbsoluteFilepathFromRelative(
 			"../../data/demo_mad_cleaned_data.bin", __FILE__);
 
-		rfim::MadRfi<float> rfi_module(metadata, 10);
+		rfim::MadRfi<float> rfi_module(metadata, 10.0f);
 		rfim::FileProcessor<rfim::MadRfi<float>> processor(rfi_module, metadata);
 
 		std::cout << "Processing data using MadRfi...\n";
+		info = processor.process_file(source_file_path, destination_file_path);
+	}
+	else if (char_from_console == '3')
+	{
+		destination_file_path = GetAbsoluteFilepathFromRelative(
+			"../../data/demo_parallel_cleaned_data.bin", __FILE__);
+
+		rfim::MedianParallelRfi<float> rfi_module(metadata);
+		rfim::FileProcessor<rfim::MedianParallelRfi<float>> processor(rfi_module, metadata);
+
+		std::cout << "Processing data using MedianParallelRfi...\n";
+		info = processor.process_file(source_file_path, destination_file_path);
+	}
+	else if (char_from_console == '4')
+	{
+		destination_file_path = GetAbsoluteFilepathFromRelative(
+			"../../data/demo_mad_parallel_cleaned_data.bin", __FILE__);
+
+		rfim::MadParallelRfi<float> rfi_module(metadata, 10.0f);
+		rfim::FileProcessor<rfim::MadParallelRfi<float>> processor(rfi_module, metadata);
+
+		std::cout << "Processing data using MadParallelRfi...\n";
 		info = processor.process_file(source_file_path, destination_file_path);
 	}
 	else if (char_from_console == '9')

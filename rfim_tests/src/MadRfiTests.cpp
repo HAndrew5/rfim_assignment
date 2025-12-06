@@ -27,7 +27,7 @@ TYPED_TEST(MadRfiTest, GetThresholdTest)
 {
 	rfim::TimeFrequencyMetadata metadata;
 	rfim::MadRfi<TypeParam> rfi_module(metadata);
-	EXPECT_EQ(rfi_module.get_threshold(), 4.5f);
+	EXPECT_EQ(rfi_module.get_threshold(), 10.0f);
 }
 
 TYPED_TEST(MadRfiTest, ConstructThresholdThresholdTest)

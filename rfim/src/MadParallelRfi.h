@@ -1,9 +1,11 @@
-#ifndef INCLUDE_RFIM_MAD_RFI
-#define INCLUDE_RFIM_MAD_RFI
+#ifndef INCLUDE_RFIM_MAD_PARALLEL_RFI
+#define INCLUDE_RFIM_MAD_PARALLEL_RFI
 
 #include<algorithm>
 #include<cassert>
 #include<vector>
+
+#include<omp.h>
 
 #include"TimeFrequency.h"
 #include"RfiStrategy.h"
@@ -19,21 +21,22 @@ namespace rfim {
 	* find how far each sample is away from the median
 	* calculate the median of this
 	The detection threshold can be set with a constructor argument.
+	The loop over channels has been parallelised with OMP.
 	*/
 	template<typename DataType>
-	class MadRfi : public RfiStrategy<MadRfi<DataType>>
+	class MadParallelRfi : public RfiStrategy<MadParallelRfi<DataType>>
 	{
 		static_assert(
 			std::is_same<DataType, float>::value ||
 			std::is_same<DataType, uint8_t>::value ||
 			std::is_same<DataType, uint16_t>::value,
-			"MadRfi DataType must be float, uint8_t, or uint16_t"
+			"MadParallelRfi DataType must be float, uint8_t, or uint16_t"
 			);
 
 	public:
 		using StrategyDataType = DataType;
 
-		MadRfi(TimeFrequencyMetadata metadata, float threshold = 10.0f) :
+		MadParallelRfi(TimeFrequencyMetadata metadata, float threshold = 10.0f) :
 			_threshold(threshold),
 			_temp_buffer(metadata),
 			_median_offset(_temp_buffer.get_number_of_spectra() / 2),
@@ -44,8 +47,10 @@ namespace rfim {
 		{
 			data_buffer.write_data_to_time_frequency(_temp_buffer);
 			size_t n_flagged_channels = 0;
+			int endChannels = static_cast<int>(data_buffer.get_number_of_channels());
 
-			for (size_t i_channel = 0; i_channel < data_buffer.get_number_of_channels(); ++i_channel)
+#pragma omp parallel for reduction(+:n_flagged_channels)
+			for (int i_channel = 0; i_channel < endChannels; ++i_channel)
 			{
 				DataType median = _temp_buffer.destructive_calculate_channel_median(i_channel);
 				DataType mad = calculate_mad(data_buffer, i_channel, median);

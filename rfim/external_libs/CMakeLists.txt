@@ -19,3 +19,7 @@ CPMAddPackage(
   GITHUB_REPOSITORY TheLartians/GroupSourcesByFolder.cmake
   VERSION 1.0
 )
+
+find_package(OpenMP REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX)

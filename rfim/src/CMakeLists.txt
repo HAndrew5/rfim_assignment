@@ -9,6 +9,8 @@ RfiStrategy.h
 RudimentaryRfi.h
 MedianStandardDeviationRfi.h
 MadRfi.h
+MedianParallelRfi.h
+MadParallelRfi.h
 FileProcessor.h
 FileProcessorInfo.h
 )
