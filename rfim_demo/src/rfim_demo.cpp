@@ -20,7 +20,7 @@ int main(void)
 	std::cout << "* 1: MedianStandardDeviationRfi (Set whole channel to median if sample exceeds some threshold above standard deviation) \n";
 	std::cout << "* 2: MadRfi (Set whole channel to median if sample exceeds some threshold above median absolute distribution) \n";
 	std::cout << "* 3: MedianParallelRfi (OMP Parallel version of MedianStandardDeviationRfi) \n";
-	std::cout << "* 3: MadParallelRfi (OMP Parallel version of MadRfi) \n";
+	std::cout << "* 4: MadParallelRfi (OMP Parallel version of MadRfi) \n";
 	std::cout << "* 9: RudimentaryRfi (Basic implementation based on provided 'code 'rfi_clean.cpp' WARNING: WILL TAKE A LONG TIME) \n";
 	std::cout << "* q: Quit \n";
 	std::cout << std::string(100, '=') + "\n\n";

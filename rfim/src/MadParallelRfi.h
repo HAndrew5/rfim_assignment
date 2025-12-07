@@ -39,8 +39,7 @@ namespace rfim {
 		MadParallelRfi(TimeFrequencyMetadata metadata, float threshold = 10.0f) :
 			_threshold(threshold),
 			_temp_buffer(metadata),
-			_median_offset(_temp_buffer.get_number_of_spectra() / 2),
-			_median_deviations(_temp_buffer.get_number_of_spectra())
+			_median_offset(_temp_buffer.get_number_of_spectra() / 2)
 		{}
 
 		size_t process_impl(TimeFrequency<DataType>& data_buffer)
@@ -79,6 +78,7 @@ namespace rfim {
 		typename std::enable_if<std::is_integral<T>::value, DataType>::type
 		calculate_mad(TimeFrequency<DataType>& data_buffer, size_t i_channel, DataType median)
 		{
+			std::vector<DataType> _median_deviations(data_buffer.get_number_of_spectra());
 			for (size_t i_sample = 0; i_sample < data_buffer.get_number_of_spectra(); ++i_sample)
 			{
 				_median_deviations[i_sample] = data_buffer.get_sample(i_channel, i_sample) > median ?
@@ -97,6 +97,7 @@ namespace rfim {
 		typename std::enable_if<std::is_floating_point<T>::value, float>::type
 		calculate_mad(TimeFrequency<DataType>& data_buffer, size_t i_channel, DataType median)
 		{
+			std::vector<DataType> _median_deviations(data_buffer.get_number_of_spectra());
 			for (size_t i_sample = 0; i_sample < data_buffer.get_number_of_spectra(); ++i_sample)
 				_median_deviations[i_sample] = std::abs(data_buffer.get_sample(i_channel, i_sample) - median);
 
@@ -116,7 +117,6 @@ namespace rfim {
 		float _threshold;
 		TimeFrequency<DataType> _temp_buffer;
 		size_t _median_offset;
-		std::vector<DataType> _median_deviations;
 	};
 
 } // namespace: rfim
